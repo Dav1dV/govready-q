@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+# Bootstraps from scratch  (e.g., after `git clone`)
+#
+#     what you only have to do once
+#
+#
+#   Usage:  bootstrap [OPTION]... [ARGUMENT]...
+#
+#     See --help option output
+#
+#
+#   Afterward,  use engage-env.bashrc  to engage the resulting isolated environment.
+#
+#     e.g., `bootstrap ;  . engage-env.bashrc ;  run`
+
+description='Bootstraps from scratch  (e.g., after `git clone`)  what you only have to do once'
+arguments_optional_multi=(ARGUMENT)
+
+. "$(dirname -- "$0")/.bashrc"  # Bootstrap in this script's directory
+
+
+log_command "$scripts_dir/install-os-packages"
+
+
+log_command "$scripts_dir/bootstrap-env"
+# https://govready-q.readthedocs.io/en/latest/developing-for-govready-q/installing-govready-q-for-development.html?highlight=virtualenv#quickstart
+
+log_command . "$scripts_dir/engage-env.bashrc"
+# https://govready-q.readthedocs.io/en/latest/developing-for-govready-q/installing-govready-q-for-development.html?highlight=%22env%2Fbin%2Factivate%22#updating-the-source-code
+
+
+log_command "$scripts_dir/install"
+# https://govready-q.readthedocs.io/en/latest/installation-and-setup/server-based-installation/linux/ubuntu/index.html?highlight=%22install-govready-q.sh%22#installing-govready-q

@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+# Bootstraps an isolated enviroment,  after bootstrapping,
+#
+#     you can have more than 1 of
+#
+#
+#   Usage:  bootstrap-env [OPTION]... [ENVIRONMENT_ID]
+#
+#     See --help & `-- --help` option output
+#
+#
+#   Afterward,  use engage-env.bashrc  to engage the resulting isolated environment.
+#
+#     e.g., `bootstrap-env --python 3.6  env3.6 ;  . engage-env.bashrc env3.6 ;  update ;  run`
+#
+#
+#   See bootstrap
+
+# TODO Install alternate Python version if specified via --python
+
+description='Bootstraps an isolated environment  you can have more than 1 of  (after bootstrapping)'
+arguments_optional=(ENVIRONMENT_ID)
+
+. "$(dirname -- "$0")/.config.bashrc"  # Configuration in this script's directory
+declare -A arguments_descriptions
+arguments_descriptions=( [$arguments_optional]="Default is  $env_default   (See configuration's env_default setting)" )
+
+. "$scripts_dir/.bashrc"  # Bootstrap in this script's directory
+
+# Default env to $env_default
+[ $# -eq 0 ] \
+  && args=("$env_default") \
+  || args=("$@")
+
+log_command "$scripts_dir/install-dependencies" virtualenv
+
+log_command virtualenv --python "$python_default"  "${args[@]}"
+# = virtualenv -p "$python_default"  "${args[@]}"
+# https://govready-q.readthedocs.io/en/latest/developing-for-govready-q/installing-govready-q-for-development.html?highlight=virtualenv#quickstart

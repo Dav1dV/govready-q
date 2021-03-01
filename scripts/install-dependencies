@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+# Installs/updates dependencies  (all by default)
+#
+#   Usage:  install-dependencies [OPTION]... [os-packages | packages | rest | DEPENDENCY_ID]...
+#
+#     See --help option output
+
+description='Installs/updates dependencies  (all by default)'
+arguments_optional_multi=('os-packages | packages | rest | DEPENDENCY_ID')
+
+. "$(dirname -- "$0")/.bashrc"  # Bootstrap in this script's directory
+
+if [ $# -gt 0 ]; then
+  # Only specified dependencies
+
+  while [ $# -gt 0 ]; do
+    case $1 in
+      os-packages|packages|rest)
+        log_command "$scripts_dir/install-$1"
+        ;;
+
+      *)
+        # Operating system  or  project  level package
+
+        if [[ " $(print_os_packages) " =~ " $1 " ]]; then
+
+          # Operating system level package
+          log_command "$scripts_dir/install-os-packages" "$1"
+
+        else
+          # Project level package
+          log_command "$scripts_dir/install-packages" "$1"
+        fi
+    esac
+
+    shift
+  done
+
+else
+  log_command "$scripts_dir/install-os-packages"
+  log_command "$scripts_dir/install-packages"
+  log_command "$scripts_dir/install-rest"
+fi

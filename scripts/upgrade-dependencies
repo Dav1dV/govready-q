@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# Upgrades the dependencies  (e.g., to the latest compatible configuration)
+#
+#     (after bootstrapping)
+#
+#
+#   Usage:  upgrade-dependencies [OPTION]...
+#
+#     See --help option output
+#
+#
+#   See bootstrap
+
+description='Upgrades the dependencies  (after bootstrapping)'
+
+. "$(dirname -- "$0")/.bashrc"  # Bootstrap in this script's directory
+
+log_command "$scripts_dir"/upgrade-dependencies-spec
+# https://govready-q.readthedocs.io/en/latest/testing-for-govready-q/supply-chain-and-dependency-management.html?highlight=requirements_txt_updater.sh#supply-chain-and-dependency-management
+
+log_command "$scripts_dir"/install-dependencies

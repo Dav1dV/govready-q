@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# Installs  (after bootstrapping)
+#
+#   Usage:  install [OPTION]... [ARGUMENT]...
+#
+#     See --help option output
+#
+#
+#   See bootstrap
+
+description='Installs  (after bootstrapping)'
+arguments_optional_multi=(ARGUMENT)
+
+. "$(dirname -- "$0")/.bashrc"  # Bootstrap in this script's directory
+
+
+log_command ./install-govready-q.sh "$@"
+# https://govready-q.readthedocs.io/en/latest/installation-and-setup/server-based-installation/linux/ubuntu/index.html?highlight=%22install-govready-q.sh%22#installing-govready-q

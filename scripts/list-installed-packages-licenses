@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+# Lists installed project-level package dependency licenses  (after bootstrapping)
+#
+#   Usage:  list-installed-package-licenses [OPTION]... [PACKAGE_ID]...
+#
+#     See --help option output
+#
+#
+#   See bootstrap
+
+# TODO Add options to only or not list licenses summary for many
+# TODO Add option to list all installed?  (commented out below)
+
+description="Lists installed project-level package dependencies' licenses  (after bootstrapping)"
+arguments_optional_multiple=(PACKAGE_ID)
+
+. "$(dirname -- "$0")/.bashrc"  # Bootstrap in this script's directory
+
+
+list_names_licenses() {  # package_id...
+
+  # Lists 'name  license' pairs
+
+  pip3 show -v "$@"  \
+    | sed -n '/Name/ s/Name: *\(.*\)/\1/p ;  /UNKNOWN/! s/ *License.*: *\( .\+\)/\1/p'  \
+    | uniq  \
+    | sed    ':a;N;$!ba;s/\n /  /g'
+}
+
+list_licenses() {  # package_id...
+
+  # Lists unique licenses summary  in lexicographic order,
+  #
+  #   starting w/ a blank line if any licenses aren't specified
+
+  list_names_licenses "$@"  | awk -F '  ' '{print $2"  "$3}'  | sort  | uniq
+}
+
+list_names_licenses_and_summary() {
+
+  list_names_licenses "$@"
+
+  echo -e '\nSummary:'
+  list_licenses "$@"  # TODO via option instead
+}
+
+case $# in
+  0)
+    list_names_licenses_and_summary $(grep '^\w' requirements.txt  | grep -o '^[^=[]*')
+#    list_names_licenses_and_summary $(pip3 list --format freeze  | grep -o '^[^=]*')  # All installed
+    ;;
+
+  1)
+    list_licenses "$1"
+    ;;
+
+  *)
+    list_names_licenses_and_summary "$@"
+    ;;
+esac

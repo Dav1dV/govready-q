@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# Updates after changes  (e.g., `git pull`)  (after bootstrapping)
+#
+#   Usage:  update [OPTION]...
+#
+#     See --help option output
+#
+#
+#   e.g., `git pull ;  update ;  run`
+#
+#
+#   See bootstrap
+
+description='Updates after changes  (e.g., `git pull`)  (after bootstrapping)'
+
+. "$(dirname -- "$0")/.bashrc"  # Bootstrap in this script's directory
+
+# https://govready-q.readthedocs.io/en/latest/developing-for-govready-q/installing-govready-q-for-development.html#updating-the-source-code
+log_command "$scripts_dir"/install-dependencies
+log_command "$scripts_dir"/update-database
+log_command "$scripts_dir"/update-modules

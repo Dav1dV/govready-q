@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# Runs  (after bootstrapping)
+#
+#   Usage:  run [OPTION]... [ARGUMENT]...
+#
+#     See --help option output
+#
+#
+#   See bootstrap
+
+description='Runs  (after bootstrapping)'
+arguments_optional_multiple=(ARGUMENT)
+
+. "$(dirname -- "$0")/.bashrc"  # Bootstrap in this script's directory
+
+log_command ./manage.py runserver "$@"
+# https://govready-q.readthedocs.io/en/latest/installation-and-setup/server-based-installation/linux/ubuntu/index.html?highlight=%22manage.py%20runserver%22#starting-and-stopping-govready-q

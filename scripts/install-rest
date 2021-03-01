@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# Installs/updates the rest of the dependencies  (after bootstrapping)
+#
+#   (e.g., not installed via the operating system & project-level package managers)
+#
+#
+#   See bootstrap
+#
+#   Note:  Named install-rest instead of install-dependencies-rest
+#            for better usability
+
+description='Installs/updates the rest of the dependencies  (after bootstrapping)'
+
+. "$(dirname -- "$0")/.bashrc"  # Bootstrap in this script's directory
+
+log_command ./fetch-vendor-resources.sh
+# https://govready-q.readthedocs.io/en/latest/developing-for-govready-q/installing-govready-q-for-development.html?highlight=%22.%2Ffetch-vendor-resources.sh%22#updating-the-source-code

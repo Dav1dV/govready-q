@@ -1,0 +1,212 @@
+#!/usr/bin/env bash
+# Tests scripts  (all by default)
+#
+#   Usage:  test-scripts [OPTION]... [SCRIPT_NAME]...
+#
+#     See --help option output
+
+# TODO Uncomment test_executee_script script run command  BUT  still only run this script --help & --dry-run
+# TODO .bashrc Bash login $0=-bash tests
+# TODO More --dry-run verification tests
+# TODO Import prev dev
+
+description='Tests scripts  (all by default)'
+arguments_optional_multiple=(SCRIPT_NAME)
+
+sourcee_scripts=(.bashrc .config.bashrc)
+env_engage_sourcee_script=engage-env.bashrc
+env_disengage_sourcee_script=disengage-env.bashrc
+sourcee_scripts_without_env_changes=("$env_engage_sourcee_script" "$env_disengage_sourcee_script")
+executee_scripts=( \
+  script.sh
+  bootstrap bootstrap-env  \
+  install install-dependencies install-os-packages install-packages install-packages-all install-rest  \
+  list-installed-packages-licenses  \
+  run test  \
+  update update-database update-modules upgrade-dependencies  \
+  upgrade-dependencies-spec upgrade-dependencies-spec-check  \
+  test-scripts)
+scripts_workflow=( \
+  "${sourcee_scripts[@]}"  \
+  "${executee_scripts[@]::2}"  \
+  "${sourcee_scripts_without_env_changes[@]::${#sourcee_scripts_without_env_changes[@]}-1}"  \
+  "${executee_scripts[@]:2:${#executee_scripts[@]}-3}"  \
+  "${sourcee_scripts_without_env_changes[-1]}"  \
+  "${executee_scripts[-1]}"  \
+)
+
+print_scripts_supported() {
+  # in lexicographic order  separated by ' | '
+  local separator=$'\n'
+  IFS_before=$IFS
+  IFS=$separator
+  echo -en "${sourcee_scripts[*]}$separator${sourcee_scripts_without_env_changes[*]}$separator${executee_scripts[*]}"  \
+    | sort  | head -c-1  | perl -pe "s/\n/ | /g"
+  IFS=$IFS_before
+}
+declare -A arguments_descriptions
+arguments_descriptions=( [SCRIPT_NAME]=$(print_scripts_supported) )
+
+. "$(dirname -- "$0")/.bashrc"  # Bootstrap in this script's directory
+
+
+tries=0
+fails=0
+
+_test_command() {  # exit_status_0_test argument...
+
+  ((tries++))
+
+  log_command "${@:2}"
+
+  if $(eval "[ $? $1 0 ]")  ||  [ "$dry_running" ] ;  then
+    echo Passed
+  else
+    echo Failed
+    ((fails++))
+  fi
+
+  echo
+}
+
+test_command() {  # argument...
+  # Tests command that should exit with status 0
+  _test_command -eq "$@"
+}
+
+test_bad_command() {  # argument...
+  # Tests command that should exit with status not 0
+  _test_command -ne "$@"
+}
+
+print_summary() {  # [tries=$tries [fails=$fails]]
+
+  local _tries="${1:-$tries}"
+  local _fails="${2:-$fails}"
+
+  [ "$_fails" -eq 0 ] \
+    && echo -n "Passed  $_tries" \
+    || echo -n "Failed  $_fails"
+  echo " of $_tries tests"
+
+  echo
+}
+
+
+begin_group() {  # name
+
+  group=$1
+
+  echo -e "\nTesting $group ..."
+
+  fails_before=$fails
+  tries_before=$tries
+}
+
+end_group() {
+
+  local _tries=$((tries-tries_before))
+  local _fails=$((fails-fails_before))
+
+  echo -en "\n$group  "
+  print_summary "$((tries-tries_before))" "$((fails-fails_before))"
+
+  echo
+}
+
+
+test_sourcee_script() {  # sourcee_script_path [env_change_test]
+
+  local path=$1
+
+  test_bad_command bash "$path"
+
+
+  local prefix
+  local option
+  test_sourcing() {  # [env_change_test]
+    test_command bash -c "$prefix. '$path' $option  && echo env_default=\$env_default  && [ $1 \"\$env_default\" ]"
+  }
+
+  for option in "${options_by_name[help]}" "${options_by_name[dry-run]}" ; do
+    test_sourcing -z
+  done
+
+  option=
+  [ "$path" -ef "$scripts_dir/$env_disengage_sourcee_script" ]  &&  prefix=". '$scripts_dir/$env_engage_sourcee_script' ;  "
+  test_sourcing "$2"
+}
+
+test_executee_script() { # script_filename
+  test_command "$1" "${options_by_name[help]}"
+  test_command "$1" "${options_by_name[dry-run]}"
+#  test_command "$1"
+}
+
+exit_with_error() {  # error_status error_message
+  >&2 echo -e "Error:  $2\n"
+  print_help
+  exit "$1"
+}
+
+test_scripts() {  # script_filenames
+
+  local script
+  for script in "$@"; do
+
+    if [ "$script" = "script.sh" ]; then
+      local path="./$script"
+      begin_group          "$path"
+      test_executee_script "$path"
+      test_command         "$path" "${options_by_name[dry-run]}" bootstrap
+      test_command         "$path"                               bootstrap "${options_by_name[help]}"
+      test_command         "$path"                               bootstrap "${options_by_name[dry-run]}"
+      end_group
+
+    else
+      local list
+      for list in sourcee_scripts sourcee_scripts_without_env_changes executee_scripts; do
+        list_ref="$list[@]"
+        [[ " ${!list_ref} " =~ " $script " ]]  &&  break
+        list=
+      done
+
+      if [ ! "$list" ]; then
+        exit_with_error 1 "'$script' testing not implemented"
+      fi
+
+      local path="$scripts_dir/$script"
+      begin_group "$path"
+
+      case "$list" in
+        sourcee_scripts)
+          test_sourcee_script "$path"
+          ;;
+
+        sourcee_scripts_without_env_changes)
+          test_sourcee_script "$path" -z
+          ;;
+
+        executee_scripts)
+          test_executee_script "$path"
+          ;;
+
+        *)
+          exit_with_error 2 'List invalid'
+      esac
+
+      end_group
+    fi
+  done
+}
+
+if [ $# -eq 0 ]; then
+  test_scripts "${scripts_workflow[@]}"
+else
+  test_scripts "$@"
+fi
+
+
+print_summary
+
+exit $fails

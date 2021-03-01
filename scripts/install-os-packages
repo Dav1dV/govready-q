@@ -1,0 +1,44 @@
+#!/usr/bin/env bash
+# Installs/updates operating system level package dependencies  (all by default)
+#
+#   Usage:  install-os-packages [OPTION]... [PACKAGE_ID]...
+#
+#     See --help & `-- --help` option output
+#
+#
+#   Note:
+#     Named install-os-packages instead of:
+#       - install-system-packages           for lexicographic = workflow ordering
+#                                             e.g., v. install-packages
+#
+#       - install-dependencies-os-packages  for better usability
+
+description='Installs/updates operating system level package dependencies  (all by default)'
+arguments_optional_multi=(PACKAGE_ID)
+
+. "$(dirname -- "$0")/.config.bashrc"  # Configuration in this script's directory
+declare -A arguments_descriptions
+arguments_descriptions=( [$arguments_optional_multi]="Default is  $(print_os_packages)   (See configuration)" )
+
+. "$scripts_dir/.bashrc"  # Bootstrap in this script's directory
+
+
+install_packages() {  # [OPTION]... [PACKAGE_ID]...
+  local manager
+  if manager=$(print_os_package_manager) ;  then
+    [ $# -eq 0 ] \
+      && arguments=("${os_packages_by_manager[$manager]}")  \
+      || arguments=("$@")
+    log_command sudo "$manager" ${os_package_managers_install_options[$manager]} ${arguments[@]}
+  else
+    return $?
+  fi
+}
+
+if [ $# -eq 0 ]; then
+  # All packages
+  install_packages
+else
+  # Specified packages
+  install_packages "$@"
+fi

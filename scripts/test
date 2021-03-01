@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# Tests  (after bootstrapping)
+#
+#   Usage:  test [OPTION]... [ARGUMENT]...
+#
+#     See --help option output
+#
+#
+#   See bootstrap
+
+description='Tests  (after bootstrapping)'
+arguments_optional_multiple=(ARGUMENT)
+
+. "$(dirname -- "$0")/.bashrc"  # Bootstrap in this script's directory
+
+log_command ./manage.py test "$@"
+# https://govready-q.readthedocs.io/en/latest/testing-for-govready-q/automated-testing.html?highlight=%22manage.py%20test%22#id1

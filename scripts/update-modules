@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+# Updates/loads all modules  (after bootstrapping)
+#
+#   Usage:  update-modules [OPTION]...
+#
+#     See --help option output
+#
+#
+#   See bootstrap
+#
+#   Note:  Named update-modules instead of load-modules for lexicographic = workflow ordering
+
+description='Updates/loads all modules  (after bootstrapping)'
+
+. "$(dirname -- "$0")/.bashrc"  # Bootstrap in this script's directory
+
+log_command ./manage.py load_modules
+# https://govready-q.readthedocs.io/en/latest/authoring-guide/understanding-compliance-apps.html?highlight=load_modules#updating-modules

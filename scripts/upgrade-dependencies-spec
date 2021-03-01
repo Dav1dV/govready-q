@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+# Upgrades the dependencies specification  (e.g., to the latest compatible configuration)
+#
+#     (after bootstrapping)
+#
+#
+#   Usage:  upgrade-dependencies-spec [OPTION]... [ARGUMENT]...
+#
+#     See --help option output
+#
+#
+#   See bootstrap
+
+description='Upgrades the dependencies specification  (after bootstrapping)'
+arguments_optional_multi=(ARGUMENT)
+
+. "$(dirname -- "$0")/.bashrc"  # Bootstrap in this script's directory
+
+log_command ./requirements_txt_updater.sh "$@"
+# https://govready-q.readthedocs.io/en/latest/testing-for-govready-q/supply-chain-and-dependency-management.html?highlight=requirements_txt_updater.sh#supply-chain-and-dependency-management

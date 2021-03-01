@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# Updates (e.g., migrates) the database after changes  (after bootstrapping)
+#
+#   Usage:  update-database [OPTION]... [ARGUMENT]...
+#
+#     See --help option output
+#
+#
+#   See bootstrap
+
+description='Updates the database after changes  (after bootstrapping)'
+arguments_optional_multi=(ARGUMENT)
+
+. "$(dirname -- "$0")/.bashrc"  # Bootstrap in this script's directory
+
+log_command ./manage.py migrate "$@"
+# https://govready-q.readthedocs.io/en/latest/developing-for-govready-q/installing-govready-q-for-development.html?highlight=manage.py%20migrate#updating-the-source-code

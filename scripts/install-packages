@@ -1,0 +1,48 @@
+#!/usr/bin/env bash
+# Installs/updates project-level package dependencies  (all by default)
+#
+#     (after bootstrapping)
+#
+#
+#   Usage:  install-packages [OPTION]... [PACKAGE_ID]...
+#
+#     See --help & `-- --help` option output
+#
+#
+#   See bootstrap
+#
+#   Note:  Named install-packages instead of install-dependencies-packages
+#            for better usability
+
+description='Installs/updates project-level package dependencies  (all by default)  (after bootstrapping)'
+arguments_optional_multiple=(PACKAGE_ID)
+
+. "$(dirname -- "$0")/.bashrc"  # Bootstrap in this script's directory
+
+
+install_packages() {  # OPTION... PACKAGE_ID...
+
+  # Use --user option  if not in a virtualenv
+  cat << EOF  | python3
+import sys
+if sys.prefix != sys.base_prefix:
+  # In a virtualenv
+  exit(1)
+EOF
+  if [ $? -eq 0 ]; then
+    # Not in a virtualenv  so can use --user
+    args=(--user "$@")
+  else
+    args=("$@")
+  fi
+
+  log_command pip3 install "${args[@]}"
+}
+
+if [ $# -eq 0 ]; then
+  # All packages
+  "$scripts_dir/install-packages-all"  "${options[@]}"
+else
+  # Specified packages
+  install_packages "$@"
+fi

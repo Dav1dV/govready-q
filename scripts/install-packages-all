@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# Installs/updates all project-level package dependencies
+#
+#     with the specified options  (after bootstrapping)
+#
+#
+#   Usage:  install-packages-all [OPTION]...
+#
+#     See --help & `-- --help` option output
+#
+#
+#   See bootstrap
+#
+#   Note:  Named install-packages-all instead of install-dependencies-packages-all
+#            for better usability
+
+description='Installs all project-level package dependencies  with the specified options  (after bootstrapping)'
+
+. "$(dirname -- "$0")/.bashrc"  # Bootstrap in this script's directory
+
+"$scripts_dir/install-packages" "${options[@]}" -r requirements.txt  "$@"
+# https://govready-q.readthedocs.io/en/latest/developing-for-govready-q/installing-govready-q-for-development.html?highlight=%22pip3%20install%20-r%20requirements.txt%22#updating-the-source-code
