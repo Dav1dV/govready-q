@@ -25,6 +25,23 @@ def make_secret_key():
 	from django.utils.crypto import get_random_string
 	return get_random_string(50, 'abcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*(-_=+)')
 
+
+# SSP, etc. auto export
+
+export_directory_environment_key = 'export_directory'
+
+def get_export_directory_default():
+	"""Return the default SSP, etc. export destination directory's server-relative path
+
+	    e.g., for automatic SSP export after changes are made
+	"""
+	return local('exports')
+
+
+AUTO_EXPORT_PAUSED = False  # True if SSP, etc. auto export paused
+                            #   (e.g., for batch operations like assigning a Control baseline)
+
+
 # Gather parameter settings from 'local/environment.json' file
 # NOTE: `environment` here refers to locally created environment data object and not OS level environment variables
 if os.path.exists(local("environment.json")):
@@ -40,7 +57,8 @@ else:
 		"govready-url": "http://localhost:8000",
 		"static": "static_root",
 		"debug": True,
-		"secret-key": make_secret_key()
+		"secret-key": make_secret_key(),
+		export_directory_environment_key: get_export_directory_default()
 	}
 
 	# Show the defaults.
@@ -48,6 +66,11 @@ else:
 	print("Please create a '%s' file containing something like this:" % local("environment.json"))
 	environment["secret-key"] = make_secret_key() # Generate a new key since the initial one was printed for the user for edification
 	print(json.dumps(environment, sort_keys=True, indent=2))
+
+# SSP, etc. export destination directory's server-relative path
+#   e.g., for automatic SSP export after changes are made
+EXPORT_DIRECTORY = environment.get(export_directory_environment_key) \
+                     or get_export_directory_default()  # if not in config file or ''
 
 # Load pre-specified admin users
 # Example: "govready_admins":[{"username": "username", "email":"first.last@example.com", "password": "REPLACEME"}]

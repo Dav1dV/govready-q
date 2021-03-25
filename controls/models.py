@@ -291,6 +291,12 @@ class Element(auto_prefetch.Model):
         if can_assign_controls:
             bs = Baselines()
             controls = bs.get_baseline_controls(baselines_key, baseline_name)
+
+            # Only trigger auto export of SSP, etc. once for this
+            from .signals import pause_auto_export, resume_auto_export
+            pause_auto_export()
+
+            ec = None  # Last added baseline ElementControl not saved
             for oscal_ctl_id in controls:
                 if f"{oscal_ctl_id}=+={baselines_key}" in selected_controls_ids_cur:
                     # Control already in selected, just append to 'no_change' list
@@ -298,18 +304,38 @@ class Element(auto_prefetch.Model):
                     next
                 else:
                     # Control in in selected, add control to selected controls and append to 'add' list
+                    if ec:
+                        ec.save()
                     ec = ElementControl(element=self, oscal_ctl_id=oscal_ctl_id, oscal_catalog_key=baselines_key)
-                    ec.save()
                     changed_controls['add'].append(f"{oscal_ctl_id}=+={baselines_key}")
+
             # We are done adding new controls to selected
             # Now remove controls previously selected but not in new baseline
             selected_controls_ids_new = set([f"{oscal_ctl_id}=+={baselines_key}" for oscal_ctl_id in controls])
+            oscal_ctl_id_rm = None  # Control id of last removed non-baseline ElementControl not deleted
+            scc_rm          = None  # scc        "
+            def remove_element_control():
+                if self.remove_element_control(oscal_ctl_id_rm, baselines_key):
+                    changed_controls['remove'].append(scc_rm)
             for scc in selected_controls_ids_cur:
                 if scc not in selected_controls_ids_new:
+                    if oscal_ctl_id_rm:
+                        remove_element_control()
                     oscal_ctl_id_rm = scc.split("=+=")[0]
-                    remove_result = self.remove_element_control(oscal_ctl_id_rm, baselines_key)
-                    if remove_result:
-                        changed_controls['remove'].append(scc)
+                    scc_rm          = scc
+
+            # Only trigger auto export of SSP, etc. once for this
+            if ec and oscal_ctl_id_rm:
+                remove_element_control()
+                resume_auto_export()
+                ec.save()
+            else:
+                resume_auto_export()
+                if ec:
+                    ec.save()
+                else:
+                    remove_element_control()
+
             return True
         else:
             # print("User does not have permission to assign selected controls to element's system.")
@@ -466,16 +492,20 @@ class System(auto_prefetch.Model):
     #
 
     def __str__(self):
-        return "'System %s id=%d'" % (self.root_element.name, self.id)
+        return "'System %s id=%d'" % (self.get_name(), self.id)
 
     def __repr__(self):
         # For debugging.
-        return "'System %s id=%d'" % (self.root_element.name, self.id)
+        return "'System %s id=%d'" % (self.get_name(), self.id)
 
     # @property
     # def statements_consumed(self):
     #     smts = self.root_element.statements_consumed.all()
     #     return smts
+
+    def get_name(self):
+        """Return this System's name"""
+        return self.root_element.name
 
     def assign_owner_permissions(self, user):
         try:

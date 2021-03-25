@@ -1,5 +1,8 @@
 from django.apps import AppConfig
 
 
-class ControlConfig(AppConfig):
-    name = 'control'
+class ControlsConfig(AppConfig):
+    name = 'controls'
+
+    def ready(self):
+        import controls.signals
