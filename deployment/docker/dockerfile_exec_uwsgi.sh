@@ -101,7 +101,7 @@ python3.6 manage.py check --deploy
 
 # Check if 0.9.0 upgrade has happened
 DB_BEFORE_090=$(python3.6 manage.py db_before_090)
-if [ $DB_BEFORE_090 = "True" ]
+if [ "$DB_BEFORE_090" = "True" ]
 then
 	echo "** WARNING!! **"
 	echo "Launching this container will automatically upgrade your GovReady-Q deployment to version 0.9.0!"

@@ -18,8 +18,8 @@ if ! git diff-index --quiet HEAD --; then
 	WARNINGS=1
 
 # Check that the HEAD commit is pushed.
-elif ! git branch -r --contains | grep "^\s*origin/master$" > /dev/null; then
-	echo "WARNING: Your branch is ahead of origin/master. Push first."
+elif ! git branch -r --contains | grep "^\s*origin/main$" > /dev/null; then
+	echo "WARNING: Your branch is ahead of origin/main. Push first."
 	echo
 	WARNINGS=1
 fi
