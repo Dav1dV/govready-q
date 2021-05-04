@@ -36,3 +36,6 @@ class APITokenBackend(authentication.BaseAuthentication):
                 raise exceptions.AuthenticationFailed('No Users matching provided API key')
         return self.get_user_from_browser_session(request)
 
+    def authenticate_header(self, request):
+        """Return HTTP 401 response WWW-Authenticate header value"""
+        return 'API-key'  # scheme
