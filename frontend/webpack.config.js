@@ -3,6 +3,9 @@ module.exports = {
     poll: true,
     ignored: /node_modules/
   },
+  resolve: {
+    extensions: ['.m.js', '...']
+  },
   module: {
     rules: [
       {
