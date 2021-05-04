@@ -14,7 +14,7 @@ else
     cp /usr/src/app/dev_env/docker/ssh/* /etc/ssh  -r
 fi
 /usr/sbin/sshd
-export -p > /usr/src/app/dev_env/docker/remote_interpreter/env_var.sh
+export -p > /usr/src/app/dev_env/docker/remote_interpreter/env_var.shrc
 
 ln -sf /usr/src/app/dev_env/docker/environment.json /usr/src/app/local/environment.json
 
