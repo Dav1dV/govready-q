@@ -4,7 +4,7 @@ module.exports = {
     ignored: /node_modules/
   },
   resolve: {
-    extensions: ['.m.js', '...']
+    extensions: ['.m.js', '.m.jsx', '...']
   },
   module: {
     rules: [
